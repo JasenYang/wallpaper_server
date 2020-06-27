@@ -12,3 +12,12 @@ classify varchar(20),
 filename varchar(200),
 uid int
 );
+
+create table model (
+pid int primary key auto_increment,
+name varchar(200),
+classify varchar(20),
+model_path varchar(200),
+images_path varchar(200),
+uid int
+);

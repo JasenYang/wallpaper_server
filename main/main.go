@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"hku/wallpaper/db"
 	"hku/wallpaper/handler"
@@ -8,7 +9,11 @@ import (
 )
 
 func main() {
-	db.InitDB()
+	err := db.InitSQLiteDB()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	// 初始化引擎
 	engine := gin.Default()
 	// 注册一个路由和处理函数
@@ -18,6 +23,8 @@ func main() {
 	engine.POST("/image/upload", handler.UploadImage)
 	engine.POST("/image/fetch", handler.FetchImage)
 	engine.POST("/class/fetch", handler.FetchClass)
+	engine.POST("/model/upload", handler.UploadModel)
+	engine.POST("/model/fetch", handler.FetchModel)
 	engine.StaticFS("/public", http.Dir(handler.PATH))
 	// 绑定端口，然后启动应用
 	engine.Run(":6789")

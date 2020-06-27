@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	_ "github.com/go-sql-driver/mysql"
+	//_ "github.com/go-sql-driver/mysql"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 //数据库配置
@@ -40,6 +41,22 @@ func InitDB()  {
 		return
 	}
 	fmt.Println("connnect success")
+}
+
+func CreateTables() {
+	_,_ = MysqlClient.Exec("create table user (\nuid int primary key auto_increment,\nname varchar(200),\npassword varchar(200),\npid varchar(200)\n);")
+	_,_ = MysqlClient.Exec("create table image (\npid int primary key auto_increment,\nname varchar(200),\nclassify varchar(20),\nfilename varchar(200),\nuid int\n);")
+	_,_ = MysqlClient.Exec("create table model (\npid int primary key auto_increment,\nname varchar(200),\nclassify varchar(20),\nmodel_path varchar(200),\nimages_path varchar(200),\nuid int\n);")
+}
+
+func InitSQLiteDB() (err error) {
+	MysqlClient, err = sql.Open("sqlite3","wallpaper.db")
+	if err != nil {
+		fmt.Printf("WRONG!!! %v\n", err)
+		return
+	}
+	//CreateTables()
+	return
 }
 
 func CheckUser(username string) bool {
@@ -191,3 +208,47 @@ func FetchClass(uid int64) ([]string, error) {
 	}
 	return result, nil
 }
+
+func InsertModel(uid int64,modelPath ,imagesPath,classify ,name string) error {
+	tx, err := MysqlClient.Begin()
+	if err != nil {
+		return err
+	}
+	stmt, err := tx.Prepare("INSERT INTO model (name, classify, model_path,image_path, uid) VALUES (?, ?, ?, ?, ?)")
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(name, classify, modelPath,imagesPath,uid)
+	if err != nil {
+		return err
+	}
+	tx.Commit()
+	return nil
+}
+
+type ModelInfo struct {
+	Name string `json:"name"`
+	Classify string `json:"classify"`
+	Image_path string `json:"image_path"`
+}
+
+func FetchModel(uid int64) ([]ModelInfo, error) {
+	query := fmt.Sprintf("SELECT name,classify,image_path FROM model where uid = %v ", uid)
+	rows, err := MysqlClient.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	var modelInfo ModelInfo
+	result := make([]ModelInfo, 0)
+	for rows.Next() {
+		err := rows.Scan(&modelInfo.Name,&modelInfo.Classify,&modelInfo.Image_path)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, modelInfo)
+		fmt.Printf("FetchModel modelInfo=%+v",modelInfo)
+	}
+
+	return result, nil
+}
+
