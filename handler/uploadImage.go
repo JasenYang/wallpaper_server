@@ -11,8 +11,8 @@ import (
 )
 
 const (
-	// PATH = "/Users/bytedance/TEMP/"
-	PATH = ""
+	//PATH = "/Users/bytedance/TEMP/"
+	PATH = "./static"
 )
 
 func UploadImage(context *gin.Context) {
