@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"hku/wallpaper/db"
 	"hku/wallpaper/handler"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -27,7 +28,7 @@ func main() {
 	engine.POST("/model/fetch", handler.FetchModel)
 	engine.StaticFS("/public", http.Dir(handler.PATH))
 	// 绑定端口，然后启动应用
-	engine.Run(":6789")
+	engine.Run(":6799")
 }
 
 /**

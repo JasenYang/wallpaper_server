@@ -13,17 +13,18 @@ import (
 const (
 	userName = "root"
 	password = "201592009"
-	ip = "127.0.0.1"
-	port = "3306"
-	dbName = "wallpaper"
+	ip       = "127.0.0.1"
+	port     = "3306"
+	dbName   = "wallpaper"
 )
+
 //Db数据库连接池
 var MysqlClient *sql.DB
 
 //注意方法名大写，就是public
-func InitDB()  {
+func InitDB() {
 	//构建连接："用户名:密码@tcp(IP:端口)/数据库?charset=utf8"
-	path := strings.Join([]string{userName, ":", password, "@tcp(",ip, ":", port, ")/", dbName, "?charset=utf8"}, "")
+	path := strings.Join([]string{userName, ":", password, "@tcp(", ip, ":", port, ")/", dbName, "?charset=utf8"}, "")
 
 	//打开数据库,前者是驱动名，所以要导入： _ "github.com/go-sql-driver/mysql"
 	var err error
@@ -36,7 +37,7 @@ func InitDB()  {
 	//设置上数据库最大闲置连接数
 	MysqlClient.SetMaxIdleConns(10)
 	//验证连接
-	if err := MysqlClient.Ping(); err != nil{
+	if err := MysqlClient.Ping(); err != nil {
 		fmt.Println("opon database fail")
 		return
 	}
@@ -44,18 +45,18 @@ func InitDB()  {
 }
 
 func CreateTables() {
-	_,_ = MysqlClient.Exec("create table user (\nuid int primary key auto_increment,\nname varchar(200),\npassword varchar(200),\npid varchar(200)\n);")
-	_,_ = MysqlClient.Exec("create table image (\npid int primary key auto_increment,\nname varchar(200),\nclassify varchar(20),\nfilename varchar(200),\nuid int\n);")
-	_,_ = MysqlClient.Exec("create table model (\npid int primary key auto_increment,\nname varchar(200),\nclassify varchar(20),\nmodel_path varchar(200),\nimages_path varchar(200),\nuid int\n);")
+	_, _ = MysqlClient.Exec("create table user (\nuid int primary key auto_increment,\nname varchar(200),\npassword varchar(200),\npid varchar(200)\n);")
+	_, _ = MysqlClient.Exec("create table image (\npid int primary key auto_increment,\nname varchar(200),\nclassify varchar(20),\nfilename varchar(200),\nuid int\n);")
+	_, _ = MysqlClient.Exec("create table model (\npid int primary key auto_increment,\nname varchar(200),\nclassify varchar(20),\nmodel_path varchar(200),\nimages_path varchar(200),\nuid int\n);")
 }
 
 func InitSQLiteDB() (err error) {
-	MysqlClient, err = sql.Open("sqlite3","wallpaper.db")
+	MysqlClient, err = sql.Open("sqlite3", "wallpaper.db")
 	if err != nil {
 		fmt.Printf("WRONG!!! %v\n", err)
 		return
 	}
-	//CreateTables()
+	// CreateTables()
 	return
 }
 
@@ -86,7 +87,7 @@ func Validate(username string, password string) int64 {
 	return uid
 }
 
-func InsertUser(username string, password string)(error, int64) {
+func InsertUser(username string, password string) (error, int64) {
 	tx, err := MysqlClient.Begin()
 	if err != nil {
 		return err, 0
@@ -149,17 +150,17 @@ func UpdateUserImg(uid int64, pid int64) error {
 	}
 	//开启事务
 	tx, err := MysqlClient.Begin()
-	if err != nil{
+	if err != nil {
 		fmt.Println("tx fail")
 	}
 	//准备sql语句
 	stmt, err := tx.Prepare("UPDATE user SET pid = ? WHERE uid = ?")
-	if err != nil{
+	if err != nil {
 		return err
 	}
 	//设置参数以及执行sql语句
 	_, err = stmt.Exec(newPid, uid)
-	if err != nil{
+	if err != nil {
 		return err
 	}
 	//提交事务
@@ -170,7 +171,7 @@ func UpdateUserImg(uid int64, pid int64) error {
 	return nil
 }
 
-func FetchImg(uid int64, classify string) ([]string, error){
+func FetchImg(uid int64, classify string) ([]string, error) {
 
 	query := fmt.Sprintf("SELECT name, filename FROM image where uid = %v and classify = '%v' ", uid, classify)
 	rows, err := MysqlClient.Query(query)
@@ -180,7 +181,7 @@ func FetchImg(uid int64, classify string) ([]string, error){
 	var filename string
 	var imgname string
 	result := make([]string, 0)
-	for rows.Next(){
+	for rows.Next() {
 		err := rows.Scan(&imgname, &filename)
 		if err != nil {
 			return nil, err
@@ -209,7 +210,7 @@ func FetchClass(uid int64) ([]string, error) {
 	return result, nil
 }
 
-func InsertModel(uid int64,modelPath ,imagesPath,classify ,name string) error {
+func InsertModel(uid int64, modelPath, imagesPath, classify, name string) error {
 	tx, err := MysqlClient.Begin()
 	if err != nil {
 		return err
@@ -218,7 +219,7 @@ func InsertModel(uid int64,modelPath ,imagesPath,classify ,name string) error {
 	if err != nil {
 		return err
 	}
-	_, err = stmt.Exec(name, classify, modelPath,imagesPath,uid)
+	_, err = stmt.Exec(name, classify, modelPath, imagesPath, uid)
 	if err != nil {
 		return err
 	}
@@ -227,8 +228,8 @@ func InsertModel(uid int64,modelPath ,imagesPath,classify ,name string) error {
 }
 
 type ModelInfo struct {
-	Name string `json:"name"`
-	Classify string `json:"classify"`
+	Name       string `json:"name"`
+	Classify   string `json:"classify"`
 	Image_path string `json:"image_path"`
 }
 
@@ -241,14 +242,13 @@ func FetchModel(uid int64) ([]ModelInfo, error) {
 	var modelInfo ModelInfo
 	result := make([]ModelInfo, 0)
 	for rows.Next() {
-		err := rows.Scan(&modelInfo.Name,&modelInfo.Classify,&modelInfo.Image_path)
+		err := rows.Scan(&modelInfo.Name, &modelInfo.Classify, &modelInfo.Image_path)
 		if err != nil {
 			return nil, err
 		}
 		result = append(result, modelInfo)
-		fmt.Printf("FetchModel modelInfo=%+v",modelInfo)
+		fmt.Printf("FetchModel modelInfo=%+v", modelInfo)
 	}
 
 	return result, nil
 }
-
