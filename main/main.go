@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"hku/wallpaper/db"
 	"hku/wallpaper/handler"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {

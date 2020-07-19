@@ -2,15 +2,17 @@ package handler
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"hku/wallpaper/db"
 	"math/rand"
 	"strconv"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 const (
-	PATH = "/Users/bytedance/TEMP/"
+	// PATH = "/Users/bytedance/TEMP/"
+	PATH = ""
 )
 
 func UploadImage(context *gin.Context) {
@@ -21,7 +23,7 @@ func UploadImage(context *gin.Context) {
 	if err != nil {
 		fmt.Println(err)
 		context.JSON(500, gin.H{
-			"status": -1,
+			"status":  -1,
 			"message": fmt.Sprintf("%v", err),
 		})
 		return
@@ -31,11 +33,11 @@ func UploadImage(context *gin.Context) {
 	rand.Seed(time.Now().UnixNano())
 	i := rand.Intn(100)
 	filename := fmt.Sprintf("%s_%v_%v.png", imgName, uid, i)
-	filepath := PATH+filename
+	filepath := PATH + filename
 	if err := context.SaveUploadedFile(file, filepath); err != nil {
 		fmt.Println(err)
 		context.JSON(500, gin.H{
-			"status": 0,
+			"status":  0,
 			"message": fmt.Sprintf("%v", err),
 		})
 		return
@@ -44,7 +46,7 @@ func UploadImage(context *gin.Context) {
 	if err != nil {
 		fmt.Println(err)
 		context.JSON(500, gin.H{
-			"status": 0,
+			"status":  0,
 			"message": fmt.Sprintf("%v", err),
 		})
 		return
@@ -53,13 +55,13 @@ func UploadImage(context *gin.Context) {
 	if err != nil {
 		fmt.Println(err)
 		context.JSON(500, gin.H{
-			"status": 0,
+			"status":  0,
 			"message": fmt.Sprintf("%v", err),
 		})
 		return
 	}
 	context.JSON(200, gin.H{
-		"status": 1,
+		"status":  1,
 		"message": "image upload successfully",
 	})
 }
