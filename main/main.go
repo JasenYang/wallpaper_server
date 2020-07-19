@@ -27,7 +27,7 @@ func main() {
 	engine.POST("/model/fetch", handler.FetchModel)
 	engine.StaticFS("/public", http.Dir(handler.PATH))
 	// 绑定端口，然后启动应用
-	engine.Run(":6789")
+	engine.Run("0.0.0.0:6789")
 }
 
 /**
