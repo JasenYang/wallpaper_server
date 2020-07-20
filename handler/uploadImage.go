@@ -3,16 +3,12 @@ package handler
 import (
 	"fmt"
 	"hku/wallpaper/db"
+	"hku/wallpaper/define"
 	"math/rand"
 	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
-)
-
-const (
-	//PATH = "/Users/bytedance/TEMP/"
-	PATH = "./static"
 )
 
 func UploadImage(context *gin.Context) {
@@ -33,7 +29,7 @@ func UploadImage(context *gin.Context) {
 	rand.Seed(time.Now().UnixNano())
 	i := rand.Intn(100)
 	filename := fmt.Sprintf("%s_%v_%v.png", imgName, uid, i)
-	filepath := PATH + filename
+	filepath := define.IMAGE_PATH + filename
 	if err := context.SaveUploadedFile(file, filepath); err != nil {
 		fmt.Println(err)
 		context.JSON(500, gin.H{

@@ -1,15 +1,10 @@
 package handler
 
 import (
-	"archive/zip"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"hku/wallpaper/db"
-	"io"
-	"log"
-	"os"
 	"strconv"
-	"strings"
 )
 
 const (
@@ -20,7 +15,7 @@ const (
 )
 
 func UploadModel(context *gin.Context) {
-	file, _ := context.FormFile("file")
+	file, _ := context.FormFile("model")
 	modelName := context.PostForm("name")
 	modelClass := context.PostForm("classify")
 	uid, err := strconv.ParseInt(context.PostForm("uid"), 10, 64)
@@ -45,7 +40,6 @@ func UploadModel(context *gin.Context) {
 		})
 		return
 	}
-
 	//filePath := IMAGE_PATH + "/" + strconv.FormatInt(uid, 10) + "/" + strconv.Itoa(i)
 	//err = DeCompress(zipPath, filePath)
 	//if err != nil {
@@ -71,90 +65,4 @@ func UploadModel(context *gin.Context) {
 		"message": "model upload successfully",
 	})
 	return
-}
-
-func GetModelPath(filepath string) string {
-	modelName := ""
-	return modelName
-}
-
-//解压
-func DeCompress(zipFile, dest string) (err error) {
-	//目标文件夹不存在则创建
-	if _, err = os.Stat(dest); err != nil {
-		if os.IsNotExist(err) {
-			os.MkdirAll(dest, 0755)
-		}
-	}
-
-	reader, err := zip.OpenReader(zipFile)
-	if err != nil {
-		return err
-	}
-
-	defer reader.Close()
-
-	for _, file := range reader.File {
-		//    log.Println(file.Name)
-
-		if file.FileInfo().IsDir() {
-
-			err := os.MkdirAll(dest+"/"+file.Name, 0755)
-			if err != nil {
-				log.Println(err)
-			}
-			continue
-		} else {
-
-			err = os.MkdirAll(getDir(dest+"/"+file.Name), 0755)
-			if err != nil {
-				return err
-			}
-		}
-
-		rc, err := file.Open()
-		if err != nil {
-			return err
-		}
-		defer rc.Close()
-
-		filename := dest + "/" + file.Name
-		//err = os.MkdirAll(getDir(filename), 0755)
-		//if err != nil {
-		//    return err
-		//}
-
-		w, err := os.Create(filename)
-		if err != nil {
-			return err
-		}
-		defer w.Close()
-
-		_, err = io.Copy(w, rc)
-		if err != nil {
-			return err
-		}
-		//w.Close()
-		//rc.Close()
-	}
-	return
-}
-
-func getDir(path string) string {
-	return subString(path, 0, strings.LastIndex(path, "/"))
-}
-
-func subString(str string, start, end int) string {
-	rs := []rune(str)
-	length := len(rs)
-
-	if start < 0 || start > length {
-		panic("start is wrong")
-	}
-
-	if end < start || end > length {
-		panic("end is wrong")
-	}
-
-	return string(rs[start:end])
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"hku/wallpaper/db"
+	"hku/wallpaper/define"
 	"hku/wallpaper/handler"
 	"net/http"
 
@@ -24,9 +25,12 @@ func main() {
 	engine.POST("/image/upload", handler.UploadImage)
 	engine.POST("/image/fetch", handler.FetchImage)
 	engine.POST("/class/fetch", handler.FetchClass)
+	// 上传stl文件
 	engine.POST("/model/upload", handler.UploadModel)
+	// 上传图片压缩包用于训练模型
+	engine.POST("/model/train", handler.TrainModel)
 	engine.POST("/model/fetch", handler.FetchModel)
-	engine.StaticFS("/static", http.Dir(handler.PATH))
+	engine.StaticFS("/static", http.Dir(define.PATH))
 	// 绑定端口，然后启动应用
 	engine.Run("0.0.0.0:6789")
 }
