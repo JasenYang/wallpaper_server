@@ -45,9 +45,12 @@ func InitDB() {
 }
 
 func CreateTables() {
-	_, _ = MysqlClient.Exec("create table user (\nuid int primary key auto_increment,\nname varchar(200),\npassword varchar(200),\npid varchar(200)\n);")
-	_, _ = MysqlClient.Exec("create table image (\npid int primary key auto_increment,\nname varchar(200),\nclassify varchar(20),\nfilename varchar(200),\nuid int\n);")
-	_, _ = MysqlClient.Exec("create table model (\npid int primary key auto_increment,\nname varchar(200),\nclassify varchar(20),\nmodel_path varchar(200),\nimages_path varchar(200),\nuid int\n);")
+	_, err := MysqlClient.Exec(fmt.Sprintf("create table user (uid INTEGER primary key AUTOINCREMENT,name varchar(200),password varchar(200),pid varchar(200));"))
+	_, err = MysqlClient.Exec(fmt.Sprintf("create table image (pid INTEGER primary key AUTOINCREMENT,name varchar(200),classify varchar(20),filename varchar(200),uid int);"))
+	_, err = MysqlClient.Exec(fmt.Sprintf("create table model (pid INTEGER primary key AUTOINCREMENT,name varchar(200),classify varchar(20),model_path varchar(200),image_path varchar(200),uid int);"))
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func InitSQLiteDB() (err error) {
@@ -231,10 +234,11 @@ type ModelInfo struct {
 	Name       string `json:"name"`
 	Classify   string `json:"classify"`
 	Image_path string `json:"image_path"`
+	Model_path string `json:"model_path"`
 }
 
 func FetchModel(uid int64) ([]ModelInfo, error) {
-	query := fmt.Sprintf("SELECT name,classify,image_path FROM model where uid = %v ", uid)
+	query := fmt.Sprintf("SELECT name,classify,image_path, model_path FROM model where uid = %v or uid = 0", uid)
 	rows, err := MysqlClient.Query(query)
 	if err != nil {
 		return nil, err
@@ -242,7 +246,7 @@ func FetchModel(uid int64) ([]ModelInfo, error) {
 	var modelInfo ModelInfo
 	result := make([]ModelInfo, 0)
 	for rows.Next() {
-		err := rows.Scan(&modelInfo.Name, &modelInfo.Classify, &modelInfo.Image_path)
+		err := rows.Scan(&modelInfo.Name, &modelInfo.Classify, &modelInfo.Image_path, &modelInfo.Model_path)
 		if err != nil {
 			return nil, err
 		}

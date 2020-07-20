@@ -10,6 +10,7 @@ import (
 
 func FetchModel(context *gin.Context) {
 	uid, err := strconv.ParseInt(context.PostForm("uid"), 10, 64)
+	fmt.Println(uid)
 	if err != nil {
 		context.JSON(500, gin.H{
 			"status": 0,

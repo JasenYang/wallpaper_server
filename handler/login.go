@@ -10,7 +10,7 @@ func Login(context *gin.Context) {
 	password := context.PostForm("password")
 	uid := db.Validate(username, password)
 	if uid == -1 {
-		context.JSON(200, gin.H{
+		context.JSON(400, gin.H{
 			"uid": -1,
 			"status": 0,
 			"message": "user not exists",

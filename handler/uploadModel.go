@@ -3,21 +3,18 @@ package handler
 import (
 	"archive/zip"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"hku/wallpaper/db"
 	"io"
 	"log"
-	"math/rand"
 	"os"
 	"strconv"
 	"strings"
-	"time"
-
-	"github.com/gin-gonic/gin"
 )
 
 const (
-	IMAGE_PATH = "/Users/bytedance/TEMP/Image"
-	MODEL_PATH = "/Users/bytedance/TEMP/Model"
+	//IMAGE_PATH = "/Users/bytedance/TEMP/Image"
+	MODEL_PATH = "/static/model/"
 	// IMAGE_PATH = ""
 	// MODEL_PATH = ""
 )
@@ -37,11 +34,10 @@ func UploadModel(context *gin.Context) {
 	}
 
 	//filename := file.Filename
-	rand.Seed(time.Now().UnixNano())
-	i := rand.Intn(100)
-	zipName := fmt.Sprintf("%s_%v_%v.zip", modelName, uid, i)
-	zipPath := IMAGE_PATH + zipName
-	if err := context.SaveUploadedFile(file, zipPath); err != nil {
+	//zipName := fmt.Sprintf("%s_%v_%v.zip", modelName, uid, i)
+	//zipPath := IMAGE_PATH + zipName
+	modelPath := MODEL_PATH + modelName
+	if err := context.SaveUploadedFile(file, modelPath); err != nil {
 		fmt.Println(err)
 		context.JSON(500, gin.H{
 			"status":  0,
@@ -50,18 +46,18 @@ func UploadModel(context *gin.Context) {
 		return
 	}
 
-	filePath := IMAGE_PATH + "/" + strconv.FormatInt(uid, 10) + "/" + strconv.Itoa(i)
-	err = DeCompress(zipPath, filePath)
-	if err != nil {
-		fmt.Println(err)
-		context.JSON(500, gin.H{
-			"status":  0,
-			"message": "Depress error",
-		})
-		return
-	}
-	modelPath := GetModelPath(filePath)
-	err = db.InsertModel(uid, modelPath, filePath, modelClass, modelName)
+	//filePath := IMAGE_PATH + "/" + strconv.FormatInt(uid, 10) + "/" + strconv.Itoa(i)
+	//err = DeCompress(zipPath, filePath)
+	//if err != nil {
+	//	fmt.Println(err)
+	//	context.JSON(500, gin.H{
+	//		"status":  0,
+	//		"message": "Depress error",
+	//	})
+	//	return
+	//}
+
+	err = db.InsertModel(uid, modelPath, "", modelClass, modelName)
 	if err != nil {
 		fmt.Println(err)
 		context.JSON(500, gin.H{
