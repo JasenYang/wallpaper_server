@@ -9,7 +9,7 @@ import (
 
 const (
 	//IMAGE_PATH = "/Users/bytedance/TEMP/Image"
-	MODEL_PATH = "/static/model/"
+	MODEL_PATH = "static/model/"
 	// IMAGE_PATH = ""
 	// MODEL_PATH = ""
 )
